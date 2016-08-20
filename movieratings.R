@@ -1,7 +1,7 @@
 library(rvest)
 require(XML)
 library(ggplot2)
-library(plotrix)
+
 
 # only do this the FIRST RUN
 # create a placeholder using Mad Max entry from OMDB to start data frame and test dimensions
@@ -111,20 +111,25 @@ metascorebyyear <- aggregate(metascore ~ year, data=movie.df.final, mean)
 rtbyyear <- rtbyyear[-c(35),]
 imdbbyyear <- imdbbyyear[-c(35),]
 metascorebyyear <- metascorebyyear[-c(35),]
-rt.lm <- lm(tomatoMeter~year, data=rtbyyear)
+
+
+ratings <- cbind(imdbbyyear, rtbyyear$tomatoMeter)
+ratings <- cbind(ratings, metascorebyyear$metascore)
+ratings$imdbRating <- ratings$imdbRating*10
+names(ratings)[3] <- "tomatoMeter"
+names(ratings)[4] <- "metascore"
+ratings$year <- as.numeric(ratings$year)
 
 # line plot
-png("average movie ratings.png", width=800, height=600, units="px")
+png("average movie ratings.png", width=800, height=600, units="px") 
 
-twoord.plot(lx = metascorebyyear$year, rx = imdbbyyear$year, ly = metascorebyyear$metascore, 
-            ry = imdbbyyear$imdbRating, rylab = "IMDb Rating", ylab = "TomatoMeter and Metascore",
-            xlab = "Year", main = "Average movie ratings, 1980-2016",  xlim=c(1980,2015)
-            ,type=c("l","l"), lwd=2, lylim=c(47,100),lcol="blue", rcol="green",)
-abline(v=1998, lty=4)
-abline(v=1996, col="red", lty=4)
-abline(v=1999, lty=4, col="green")
-lines(rtbyyear$year,rtbyyear$tomatoMeter, col="red",lwd=2)
-legend(2005,95,c("RT","IMDb","MC"),lty=c(1,1),lwd=c(2,2),col=c("red","green","blue"))
+ggplot(ratings, aes(x=year, group=1,title="Average Movie ratings, 1962-2016",ylab="Rating")) +
+      geom_line(aes(y=tomatoMeter, color="red")) +
+      geom_line(aes(y=metascore, color="blue")) +
+      geom_line(aes(y=imdbRating, color="yellow")) +
+      scale_colour_identity(guide="legend", name='Website', labels=c("Metacritic","RT","IMDb")) +
+      ylab("Rating") +
+      xlab("Year")
 
 dev.off()
 # chart only top movies
@@ -154,17 +159,23 @@ rtbyyear.top <- rtbyyear.top[-c(35),]
 imdbbyyear.top <- imdbbyyear.top[-c(35),]
 mcbyyear.top <- mcbyyear.top[-c(35),]
 
+ratings.top <- cbind(imdbbyyear.top, rtbyyear.top$tomatoMeter)
+ratings.top <- cbind(ratings.top, mcbyyear.top$metascore)
+ratings.top$imdbRating <- ratings.top$imdbRating*10
+names(ratings.top)[3] <- "tomatoMeter"
+names(ratings.top)[4] <- "metascore"
+ratings.top$year <- as.numeric(ratings$year)
+
 png("top 12 movie ratings.png", width=800, height=600, units="px")
 
-twoord.plot(lx = mcbyyear.top$year, rx = imdbbyyear.top$year, ly = mcbyyear.top$metascore, 
-            ry = imdbbyyear.top$imdbRating, rylab = "IMDb Rating", ylab = "TomatoMeter and Metascore",
-            xlab = "Year", main = "Average movie ratings of top 12 rated movies", xlim=c(1980,2015), 
-            type=c("l","l"), lwd=2, lcol="blue", rcol="green", lylim=c(65,100))
-lines(rtbyyear.top$year,rtbyyear.top$tomatoMeter, col="red",lwd=2)
-abline(v=1998, lty=4)
-abline(v=1996, col="red", lty=4)
-abline(v=1999, col="green", lty=4)
-legend(2001,82,c("RT","IMDb","MC"),lty=c(1,1),lwd=c(2,2),col=c("red","green","blue"))
+ggplot(ratings.top, aes(x=year, group=1,title="Top 12 Movie ratings, 1980-2016",ylab="Rating")) +
+      geom_line(aes(y=tomatoMeter, color="red")) +
+      geom_line(aes(y=metascore, color="blue")) +
+      geom_line(aes(y=imdbRating, color="yellow")) +
+      scale_colour_identity(guide="legend", name='Website', labels=c("Metacritic","RT","IMDb")) +
+      ylab("Rating") +
+      xlab("Year") +
+      xlim(1980,2016)
 
 dev.off()
 # barplot of # of movies by year
