@@ -129,7 +129,10 @@ ggplot(ratings, aes(x=year, group=1,title="Average Movie ratings, 1962-2016",yla
       geom_line(aes(y=imdbRating, color="yellow")) +
       scale_colour_identity(guide="legend", name='Website', labels=c("Metacritic","RT","IMDb")) +
       ylab("Rating") +
-      xlab("Year")
+      xlab("Year") +
+      geom_vline(xintercept=1996, colour="yellow", linetype="longdash") +
+      geom_vline(xintercept=1998, colour="red", linetype="longdash") +
+      geom_vline(xintercept=1999, colour="blue", linetype="longdash")
 
 dev.off()
 # chart only top movies
@@ -175,7 +178,10 @@ ggplot(ratings.top, aes(x=year, group=1,title="Top 12 Movie ratings, 1980-2016",
       scale_colour_identity(guide="legend", name='Website', labels=c("Metacritic","RT","IMDb")) +
       ylab("Rating") +
       xlab("Year") +
-      xlim(1980,2016)
+      xlim(1980,2016) +
+      geom_vline(xintercept=1996, colour="yellow", linetype="longdash") +
+      geom_vline(xintercept=1998, colour="red", linetype="longdash") +
+      geom_vline(xintercept=1999, colour="blue", linetype="longdash")
 
 dev.off()
 # barplot of # of movies by year
